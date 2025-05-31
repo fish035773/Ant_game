@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "projectile.h": "c"
+        "projectile.h": "c",
+        "gameclock.h": "c"
     }
 }
