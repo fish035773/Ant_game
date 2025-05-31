@@ -1,0 +1,28 @@
+# 編譯產物
+*.exe
+*.o
+*.obj
+*.dll
+*.so
+*.a
+*.out
+
+# 暫存與 log
+*.log
+*.tmp
+*.bak
+*.stackdump
+
+# 編譯資料夾
+/build/
+/bin/
+/Debug/
+/Release/
+
+# VS Code 個人設定
+.vscode/
+
+# 系統檔
+.DS_Store
+Thumbs.db
+desktop.ini
