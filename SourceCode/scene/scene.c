@@ -2,6 +2,7 @@
 #include "road.h"
 #include "nest.h"
 #include "kitchen.h"
+#include "boss_fight.h"
 #include "../element/element.h"
 #include "../element/charater.h"
 #include "../element/floor.h"

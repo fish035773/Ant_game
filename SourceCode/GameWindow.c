@@ -1,6 +1,7 @@
 #include "GameWindow.h"
 #include "GAME_ASSERT.h"
 #include "global.h"
+#include "GameClock.h"
 #include "shapes/Shape.h"
 #include "element/charater.h"
 // include allegro
@@ -14,6 +15,9 @@
 // include scene and following component
 #include "scene/sceneManager.h"
 #include <stdbool.h>
+static GameClock game_clock;
+static double last_time = 0;
+extern ALLEGRO_FONT* clock_font;
 
 Game *New_Game()
 {
@@ -98,6 +102,11 @@ void game_init(Game *self)
     addon_init &= al_install_mouse();     // install mouse event
     addon_init &= al_install_audio();     // install audio event
     GAME_ASSERT(addon_init, "failed to initialize allegro addons.");
+    // Init Font
+    clock_font = al_load_ttf_font("assets/font/FFFFORWA.TTF", 24, 0);
+    // Init Time
+    last_time = al_get_time();
+    Init_Game_Clock(&game_clock);
     // Create display
     self->display = al_create_display(GAME_WIDTH, GAME_HEIGHT);
     GAME_ASSERT(self->display, "failed to create display.");
@@ -135,6 +144,11 @@ bool game_update(Game *self)
         fprintf(stderr, "[ERROR] scene is NULL at update start!\n");
         return false;
     }
+    
+    double now = al_get_time();
+    double delta = now - last_time;
+    last_time = now;
+    Update_Game_Clock(&game_clock, delta);
 
     scene->Update(scene);
 
@@ -175,7 +189,6 @@ void game_draw(Game *self)
     
     al_set_target_backbuffer(self->display);
     
-
     const int SCALE = 3; 
     al_draw_scaled_bitmap(
         self->canvas,
@@ -184,6 +197,8 @@ void game_draw(Game *self)
         0
     );
 
+    Clock_Draw(&game_clock, 20, 20);
+
     al_flip_display();
 }
 void game_destroy(Game *self)
@@ -191,6 +206,7 @@ void game_destroy(Game *self)
     // Make sure you destroy all things
     al_destroy_event_queue(event_queue);
     al_destroy_display(self->display);
+    al_destroy_font(clock_font);
     scene->Destroy(scene);
     free(self);
 }

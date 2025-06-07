@@ -13,7 +13,8 @@ typedef enum SceneType
     Menu_L = 0,
     Nest_L,
     Road_L,
-    Kitchen_L
+    Kitchen_L,
+    Boss_Fight_L
 } SceneType;
 extern SceneType last_scene;
 void create_scene(SceneType);

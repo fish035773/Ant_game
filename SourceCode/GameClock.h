@@ -8,6 +8,7 @@ typedef struct{
     double timer_accum;
 } GameClock;
 
+void Init_Game_Clock(GameClock *clock);
 void Update_Game_Clock(GameClock *clock, double delta);
-
+void Clock_Draw(GameClock *clock, int x, int y);
 #endif

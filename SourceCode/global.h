@@ -2,6 +2,8 @@
 #define GLOBAL_H_INCLUDED
 #include <stdio.h>
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #define GAME_TERMINATE -1
 #include "shapes/Point.h"
 #define debug(x)                                                            \
@@ -27,5 +29,6 @@ extern ALLEGRO_EVENT event;
 extern ALLEGRO_TIMER *fps;
 extern bool debug_mode;
 extern int spawn_timer;
+ALLEGRO_FONT* clock_font;
 
 #endif

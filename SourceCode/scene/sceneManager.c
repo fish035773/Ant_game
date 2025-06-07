@@ -4,6 +4,7 @@
 #include "road.h"
 #include "nest.h"
 #include "kitchen.h"
+#include "boss_fight.h"
 
 Scene *scene = NULL;
 
@@ -28,6 +29,9 @@ void create_scene(SceneType type)
         break;
     case Kitchen_L:
         scene = New_Kitchen(Kitchen_L);
+        break;
+    case Boss_Fight_L:
+        scene = New_Boss_Fight(Boss_Fight_L);
         break;
     default:
         break;
