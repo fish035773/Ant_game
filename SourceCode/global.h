@@ -29,6 +29,6 @@ extern ALLEGRO_EVENT event;
 extern ALLEGRO_TIMER *fps;
 extern bool debug_mode;
 extern int spawn_timer;
-ALLEGRO_FONT* clock_font;
+ALLEGRO_FONT* count_font;
 
 #endif

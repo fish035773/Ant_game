@@ -3,7 +3,7 @@
 #include <allegro5/allegro_ttf.h>
 #include <stdio.h>
 
-extern ALLEGRO_FONT* clock_font;
+extern ALLEGRO_FONT* count_font;
 
 void Init_Game_Clock(GameClock *clock){
     clock->day = 1;
@@ -36,5 +36,5 @@ void Update_Game_Clock(GameClock *clock, double delta){
 void Clock_Draw(GameClock *clock, int x, int y){
     char buf[32];
     snprintf(buf, sizeof(buf), "Day %d %02d:%02d", clock->day, clock->hour, clock->min);
-    al_draw_text(clock_font, al_map_rgb(255, 255, 255), x, y, 0, buf);
+    al_draw_text(count_font, al_map_rgb(255, 255, 255), x, y, 0, buf);
 }

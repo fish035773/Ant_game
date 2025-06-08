@@ -2,6 +2,7 @@
 #include "GAME_ASSERT.h"
 #include "global.h"
 #include "GameClock.h"
+#include "Resources.h"
 #include "shapes/Shape.h"
 #include "element/charater.h"
 // include allegro
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 static GameClock game_clock;
 static double last_time = 0;
-extern ALLEGRO_FONT* clock_font;
+static int last_day = 1;
+extern ALLEGRO_FONT* count_font;
 
 Game *New_Game()
 {
@@ -103,10 +105,12 @@ void game_init(Game *self)
     addon_init &= al_install_audio();     // install audio event
     GAME_ASSERT(addon_init, "failed to initialize allegro addons.");
     // Init Font
-    clock_font = al_load_ttf_font("assets/font/FFFFORWA.TTF", 24, 0);
+    count_font = al_load_ttf_font("assets/font/FFFFORWA.TTF", 24, 0);
     // Init Time
     last_time = al_get_time();
     Init_Game_Clock(&game_clock);
+    // Init resorces
+    Init_Resources(&self->resources);
     // Create display
     self->display = al_create_display(GAME_WIDTH, GAME_HEIGHT);
     GAME_ASSERT(self->display, "failed to create display.");
@@ -150,6 +154,10 @@ bool game_update(Game *self)
     last_time = now;
     Update_Game_Clock(&game_clock, delta);
 
+    if(game_clock.day != last_day){
+        last_day = game_clock.day;
+        Update_Resources(&self->resources);
+    }
     scene->Update(scene);
 
     //switch scene
@@ -198,6 +206,7 @@ void game_draw(Game *self)
     );
 
     Clock_Draw(&game_clock, 20, 20);
+    Resources_Draw(&self->resources, WIDTH - 100, 20);
 
     al_flip_display();
 }
@@ -206,7 +215,7 @@ void game_destroy(Game *self)
     // Make sure you destroy all things
     al_destroy_event_queue(event_queue);
     al_destroy_display(self->display);
-    al_destroy_font(clock_font);
+    al_destroy_font(count_font);
     scene->Destroy(scene);
     free(self);
 }

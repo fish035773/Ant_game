@@ -1,6 +1,7 @@
 #ifndef GAMEWINDOW_H_INCLUDED
 #define GAMEWINDOW_H_INCLUDED
 #include <allegro5/allegro.h>
+#include "Resources.h"
 #include <stdbool.h>
 
 typedef struct _GAME Game;
@@ -27,6 +28,8 @@ struct _GAME
     fptrGameUpdate game_update;
     fptrGameDraw game_draw;
     fptrGameDestroy game_destroy;
+
+    Resources resources;
 };
 Game *New_Game();
 
