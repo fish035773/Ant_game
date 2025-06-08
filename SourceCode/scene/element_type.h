@@ -8,6 +8,7 @@ typedef enum EleType
     Tree_L,
     Character_L,
     Projectile_L,
+    BOSS_L
 } EleType;
 
 #endif

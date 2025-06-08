@@ -76,10 +76,16 @@ void kitchen_update(Scene *self)
         chara->y = 10;
     }
     //switch to the second map
+    
     if (chara != NULL && chara->x <= 0)
     {
         self->scene_end = true;
         window = 2;
+        return;
+    }else if (chara != NULL && chara->x + chara->width >= WIDTH)
+    {
+        self->scene_end = true;
+        window = 4;
         return;
     }
     

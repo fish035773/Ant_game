@@ -9,6 +9,7 @@
 #include "../element/teleport.h"
 #include "../element/tree.h"
 #include "../element/projectile.h"
+#include "../element/boss.h"
 #include "element_type.h"
 /*
    [Scene function]

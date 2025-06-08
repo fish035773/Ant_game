@@ -1,37 +1,19 @@
 #include <allegro5/allegro_audio.h>
 #include "boss_fight.h"
 #include "sceneManager.h"
-#include "../element/element.h"
-#include "../element/charater.h"
-#include "../element/floor.h"
-#include "../element/teleport.h"
-#include "../element/tree.h"
-#include "../element/projectile.h"
-/*
-   Boss_Fight is the rightmost scene
-*/
+#include "../element/boss.h"
+
 Scene *New_Boss_Fight(int label)
 {
     Boss_Fight *pDerivedObj = (Boss_Fight *)malloc(sizeof(Boss_Fight));
     Scene *pObj = New_Scene(label);
+
     // setting derived object member
     pDerivedObj->background = al_load_bitmap("assets/image/background_layer_1.png");
-    if(!pDerivedObj->background){
-        fprintf(stderr, "[ERROR] Failed to load background\n");
-        exit(1);
-    }
     pObj->pDerivedObj = pDerivedObj;
-    
-    Elements *floor = New_Floor(Floor_L, "assets/map/boss_fight_map.txt");
-    Elements *ele = New_Character(Character_L);
-    // register element
-    _Register_elements(pObj, floor);
-    _Register_elements(pObj, ele);
 
-    Character *chara = (Character*)ele->pDerivedObj;
-    
-    chara->x = 10;
-    chara->y = 10;
+    Elements *boss = New_Boss(BOSS_L);
+    _Register_elements(pObj, boss);
     
     // setting derived object function
     pObj->Update = boss_fight_update;
@@ -41,7 +23,6 @@ Scene *New_Boss_Fight(int label)
 }
 void boss_fight_update(Scene *self)
 {   
-    Character *chara = NULL;
     // update every element
     ElementVec allEle = _Get_all_elements(self);
     for (int i = 0; i < allEle.len; i++)
@@ -55,6 +36,7 @@ void boss_fight_update(Scene *self)
         Elements *ele = allEle.arr[i];
         ele->Interact(ele);
     }
+    
     // remove element
     for (int i = 0; i < allEle.len; i++)
     {
@@ -62,24 +44,12 @@ void boss_fight_update(Scene *self)
         if (ele->dele)
             _Remove_elements(self, ele);
     }
-    // link with character
-    for (int i = 0; i < allEle.len; i++)
-    {
-        if(allEle.arr[i]->label == Character_L){
-            chara = (Character *)(allEle.arr[i]->pDerivedObj);
-            break;
-        }
-    }
-
-    //Prevent the character from falling through the floor before the map is fully loaded.
-    if(chara->y >= HEIGHT){
-        chara->y = 10;
-    }
+    printf("HERE\n");
     //switch to the second map
-    if (chara != NULL && chara->x <= 0)
+    if (key_state[ALLEGRO_KEY_P])
     {
         self->scene_end = true;
-        window = 2;
+        window = 1;
         return;
     }
     
@@ -89,6 +59,7 @@ void boss_fight_draw(Scene *self)
     al_clear_to_color(al_map_rgb(0, 0, 0));
     Boss_Fight *gs = ((Boss_Fight *)(self->pDerivedObj));
     al_draw_bitmap(gs->background, 0, 0, 0);
+
     ElementVec allEle = _Get_all_elements(self);
     for (int i = 0; i < allEle.len; i++)
     {
@@ -130,11 +101,11 @@ void boss_fight_destroy(Scene *self)
         }
     }
 
-    //printf("[DEBUG] Freeing Boss_Fight object...\n");
+    //printf("[DEBUG] Freeing Kitchen object...\n");
     free(Obj);
 
     //printf("[DEBUG] Freeing Scene object...\n");
     free(self);
 
-    //printf("[DEBUG] boss_fight_destroy() finished\n");
+    //printf("[DEBUG] kitchen_destroy() finished\n");
 }

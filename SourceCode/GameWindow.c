@@ -149,6 +149,9 @@ bool game_update(Game *self)
         return false;
     }
     
+    if(window != 4){
+        
+    }
     double now = al_get_time();
     double delta = now - last_time;
     last_time = now;
