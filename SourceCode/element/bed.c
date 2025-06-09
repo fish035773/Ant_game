@@ -15,6 +15,7 @@
 #include <stdbool.h>
 extern Scene *scene;
 extern GameClock game_clock;
+extern Resources resources;
 extern bool f_key_released;
 /*
    [Bed function]
@@ -64,6 +65,8 @@ void Bed_update(Elements *self) {
             f_key_released = false;
             bed->jumped = true;
             bed->jump_img_start_time = al_get_time();
+            resources.food += resources.food_add;
+            resources.food_add = 0;
         }
     }
     if (!key_state[ALLEGRO_KEY_F]) f_key_released = true;

@@ -2,6 +2,7 @@
 #define FOOD_H_INCLUDED
 #include "element.h"
 #include "../shapes/Shape.h"
+#include "charater.h"
 #include <stdbool.h>
 
 #define MAX_COLLECTION_PROGRESS 100.0
@@ -29,9 +30,13 @@ typedef struct _Food {
     bool alert_bar_direction;
     float alert_bar_speed;
     int alert_level;
+
+    Character *player;
+    int id;
 } Food;
 
-Elements *New_Food(int label, int x, int y, int scene_label);
+
+Elements *New_Food(int label, int x, int y, int scene_label, int id);
 void Food_update(Elements *self);
 void Food_draw(Elements *self);
 void Food_destroy(Elements *self);

@@ -8,9 +8,7 @@
 #include "../element/tree.h"
 #include "../element/projectile.h"
 #include "../element/food.h"
-/*
-   Kitchen is the rightmost scene
-*/
+extern int alert_level;
 Scene *New_Kitchen(int label)
 {
     Kitchen *pDerivedObj = (Kitchen *)malloc(sizeof(Kitchen));
@@ -21,15 +19,22 @@ Scene *New_Kitchen(int label)
         fprintf(stderr, "[ERROR] Failed to load background\n");
         exit(1);
     }
+    pDerivedObj->alert_bar_full = al_load_bitmap("assets/image/alert_full.png");
+    pDerivedObj->alert_bar_yellow= al_load_bitmap("assets/image/alert_yellow.png");
+    pDerivedObj->alert_bar_red = al_load_bitmap("assets/image/alert_red.png");
+    pDerivedObj->alert_bar_empty = al_load_bitmap("assets/image/alert_empty.png");
+
     pObj->pDerivedObj = pDerivedObj;
-    
+    alert_level = 3;
     Elements *floor = New_Floor(Floor_L, "assets/map/kitchen_map.txt");
     Elements *ele = New_Character(Character_L);
-    Elements *food = New_Food(Food_L, 300, 230,pObj->label);//增加食物
+    _Register_elements(scene, New_Food(Food_L, 300, 230, scene->label, 1));
+    _Register_elements(scene, New_Food(Food_L, 340, 170, scene->label, 2)); 
+    _Register_elements(scene, New_Food(Food_L, 200, 200, scene->label, 3));
+    _Register_elements(scene, New_Food(Food_L, 400, 100, scene->label, 4));
     // register element
     _Register_elements(pObj, floor);
     _Register_elements(pObj, ele);
-    _Register_elements(pObj, food);//增加食物
     Character *chara = (Character*)ele->pDerivedObj;
     
     chara->x = 10;
@@ -46,6 +51,15 @@ void kitchen_update(Scene *self)
     Character *chara = NULL;
     // update every element
     ElementVec allEle = _Get_all_elements(self);
+
+    // link with character
+    for (int i = 0; i < allEle.len; i++)
+    {
+        if(allEle.arr[i]->label == Character_L){
+            chara = (Character *)(allEle.arr[i]->pDerivedObj);
+            break;
+        }
+    }
     for (int i = 0; i < allEle.len; i++)
     {
         Elements *ele = allEle.arr[i];
@@ -63,14 +77,6 @@ void kitchen_update(Scene *self)
         Elements *ele = allEle.arr[i];
         if (ele->dele)
             _Remove_elements(self, ele);
-    }
-    // link with character
-    for (int i = 0; i < allEle.len; i++)
-    {
-        if(allEle.arr[i]->label == Character_L){
-            chara = (Character *)(allEle.arr[i]->pDerivedObj);
-            break;
-        }
     }
 
     //Prevent the character from falling through the floor before the map is fully loaded.
@@ -102,6 +108,15 @@ void kitchen_draw(Scene *self)
     {
         Elements *ele = allEle.arr[i];
         ele->Draw(ele);
+    }
+    if(alert_level == 3){
+        al_draw_bitmap(gs->alert_bar_full, WIDTH - 50, 30, 0);
+    }else if(alert_level == 2){
+        al_draw_bitmap(gs->alert_bar_yellow, WIDTH - 50, 30, 0);
+    }else if(alert_level == 1){
+        al_draw_bitmap(gs->alert_bar_red, WIDTH - 50, 30, 0);
+    }else if(alert_level == 0){
+        al_draw_bitmap(gs->alert_bar_empty, WIDTH - 50, 30, 0);
     }
 }
 void kitchen_destroy(Scene *self)

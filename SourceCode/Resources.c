@@ -3,6 +3,7 @@ extern ALLEGRO_FONT* count_font;
 void Init_Resources(Resources *self){
     self->ants = 1;
     self->food = 0;
+    self->food_add = 0;
 }
 void Update_Resources(Resources *self){
     self->ants += 5;

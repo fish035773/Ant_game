@@ -10,13 +10,9 @@
 extern Resources resources;
 bool f_key_released = true;
 bool space_key_released = true;
+extern int alert_level;
+Elements *New_Food(int label, int x, int y, int scene_label, int id) {
 
-#define FOOD_POS_COUNT 4
-const int food_spawn_x[FOOD_POS_COUNT] = {100, 200, 300, 400};
-const int food_spawn_y[FOOD_POS_COUNT] = {100, 150, 120, 180};
-
-Elements *New_Food(int label, int x, int y,int scene_label) {
-    al_init();
     Food *pDerivedObj = (Food *)malloc(sizeof(Food));
     Elements *pObj = New_Elements(label);
 
@@ -24,10 +20,6 @@ Elements *New_Food(int label, int x, int y,int scene_label) {
     pDerivedObj->slide_bar = al_load_bitmap("assets/image/slide_bar.png");
     pDerivedObj->slide_bar_pointer = al_load_bitmap("assets/image/slide_bar_pointer.png");
 
-    pDerivedObj->alert_bar_full = al_load_bitmap("assets/image/alert_full.png");
-    pDerivedObj->alert_bar_yellow= al_load_bitmap("assets/image/alert_yellow.png");
-    pDerivedObj->alert_bar_red = al_load_bitmap("assets/image/alert_red.png");
-    pDerivedObj->alert_bar_empty = al_load_bitmap("assets/image/alert_empty.png");
 
     if (!pDerivedObj->img) {
         fprintf(stderr, "failed to load food image\n");
@@ -48,15 +40,16 @@ Elements *New_Food(int label, int x, int y,int scene_label) {
         pDerivedObj->y + half_h
     );
 
-    pDerivedObj->is_collected = food_states[scene_label].is_collected;
-    pDerivedObj->day_collected = food_states[scene_label].day_collected;
+    pDerivedObj->id = id;
+
     pDerivedObj->collection_progress = 0;
     // pDerivedObj->character_is_colliding = false;
     pDerivedObj->alert_bar_active = false;
     pDerivedObj->alert_bar_direction = true;
     pDerivedObj->alert_bar_position = 0.0f;
     pDerivedObj->alert_bar_speed = 0.02f;
-    pDerivedObj->alert_level = 3;
+
+    pDerivedObj->is_collected = true;
 
     pObj->pDerivedObj = pDerivedObj;
     
@@ -72,15 +65,14 @@ Elements *New_Food(int label, int x, int y,int scene_label) {
 
 void Food_update(Elements *self) {
     Food *food = (Food *)(self->pDerivedObj);
-    printf("food->is_collected: %d, game_day: %d, day_collected: %d\n", food->is_collected, game_clock.day, food->day_collected);
 
+    //printf("food->is_collected: %d, game_day: %d, day_collected: %d\n", food->is_collected, game_clock.day, food->day_collected);
+    //printf("[food %d] collected=%d, day_collected=%d, current_day=%d\n",
     // Respawn logic
-    if (food->is_collected && game_clock.day > food->day_collected) {
-        int index = rand() % FOOD_POS_COUNT;
-        food->x = food_spawn_x[index];
-        food->y = food_spawn_y[index];
-
-        // 更新 hitbox
+    if (food->is_collected && game_clock.day >= food->day_collected + 1) {
+        food->is_collected = false;
+        food->day_collected = -1;
+        
         Rectangle *rect = (Rectangle *)(food->hitbox->pDerivedObj);
         int w = rect->x2 - rect->x1;
         int h = rect->y2 - rect->y1;
@@ -89,15 +81,6 @@ void Food_update(Elements *self) {
         rect->x2 = food->x + w / 2;
         rect->y1 = food->y - h / 2;
         rect->y2 = food->y + h / 2;
-
-        food->is_collected = false;
-        food->day_collected = -1;
-        food_states[scene->label] = (FoodState){.is_collected = false, .day_collected = -1};
-    }
-
-
-    if (food->is_collected) {
-        return;
     }
 
     // Collection logic
@@ -108,6 +91,7 @@ void Food_update(Elements *self) {
         Character *character = (Character *)(char_ele->pDerivedObj);
 
         colliding = check_collision(food->hitbox, character->hitbox);
+        //printf("%d\n", food->id);
     }
 
     if (colliding) {
@@ -146,11 +130,18 @@ void Food_update(Elements *self) {
                     food->is_collected = true;
                     food->day_collected = game_clock.day;
                 }else {
-                    food->alert_level--;
-                    if (food->alert_level <= 0) {
-                        window = GAME_TERMINATE;
+                    alert_level--;
+                    food->is_collected = true;
+                    if (alert_level <= 0) {
+                        resources.food = 0;
+                        scene->scene_end = true;
+                        window = 1;
+                        game_clock.day += 1;
                     }
                 }
+                food->is_collected = true;
+                food->day_collected = game_clock.day;
+
                 al_rest(0.5);
             }
         }
@@ -180,7 +171,9 @@ void Food_interact(Elements *self) {
 void Food_draw(Elements *self) {
     Food *food = (Food *)(self->pDerivedObj);
     
-    if (!food->is_collected) {
+    if (food->is_collected) {
+        return;
+    }else if (!food->is_collected) {
         al_draw_scaled_bitmap(
             food->img, 0, 0,
             al_get_bitmap_width(food->img),
@@ -210,15 +203,7 @@ void Food_draw(Elements *self) {
             al_draw_bitmap(food->slide_bar_pointer, pointer_x - pointer_width / 2, pointer_y, 0);
         }
     }
-    if(food->alert_level == 3){
-        al_draw_bitmap(food->alert_bar_full, WIDTH - 50, 30, 0);
-    }else if(food->alert_level == 2){
-        al_draw_bitmap(food->alert_bar_yellow, WIDTH - 50, 30, 0);
-    }else if(food->alert_level == 1){
-        al_draw_bitmap(food->alert_bar_red, WIDTH - 50, 30, 0);
-    }else if(food->alert_level == 0){
-        al_draw_bitmap(food->alert_bar_empty, WIDTH - 50, 30, 0);
-    }
+
 }
 
 void Food_destroy(Elements *self) {

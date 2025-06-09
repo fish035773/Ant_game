@@ -9,6 +9,7 @@
 typedef struct{
     int ants;
     int food;
+    int food_add;
 } Resources;
 
 

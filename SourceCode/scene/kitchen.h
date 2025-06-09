@@ -10,6 +10,10 @@
 typedef struct _Kitchen
 {
     ALLEGRO_BITMAP *background;
+    ALLEGRO_BITMAP *alert_bar_full;
+    ALLEGRO_BITMAP *alert_bar_yellow;
+    ALLEGRO_BITMAP *alert_bar_red;
+    ALLEGRO_BITMAP *alert_bar_empty;
 
 } Kitchen;
 Scene *New_Kitchen(int label);

@@ -24,9 +24,6 @@ typedef struct {
     int day_collected;
 } FoodState;
 
-// Add with other extern declarations
-extern FoodState food_states[5]; // 5 scenes: Menu, Nest, Road, Kitchen, Boss_Fight
-
 // note that you can't assign initial value for extern variable!
 extern const double FPS;
 extern const int WIDTH;
@@ -48,4 +45,6 @@ ALLEGRO_FONT* count_font;
 extern ALLEGRO_FONT* count_font;
 extern GameClock game_clock;
 extern Resources resources;
+extern FoodState food_states[100];
+extern int alert_level;
 #endif

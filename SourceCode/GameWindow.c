@@ -94,6 +94,8 @@ void game_init(Game *self)
 {
     printf("Game Initializing...\n");
     GAME_ASSERT(al_init(), "failed to initialize allegro.");
+    al_init();
+    alert_level = 3;
     // initialize allegro addons
     bool addon_init = true;
     addon_init &= al_init_primitives_addon();

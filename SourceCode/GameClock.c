@@ -2,9 +2,9 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <stdio.h>
-
+#include "global.h"
 extern ALLEGRO_FONT* count_font;
-
+extern Resources resources;
 void Init_Game_Clock(GameClock *clock){
     clock->day = 1;
     clock->hour = 8;
@@ -13,7 +13,7 @@ void Init_Game_Clock(GameClock *clock){
 }
 
 void Update_Game_Clock(GameClock *clock, double delta){
-    double game_minute = delta * (540 / 300);
+    double game_minute = delta * (540 / 300*10);
 
     clock->timer_accum += game_minute;
 
@@ -26,6 +26,8 @@ void Update_Game_Clock(GameClock *clock, double delta){
             clock->min = 0;
 
             if(clock->hour > 17){
+                resources.food_add = 0;
+                window = 1;
                 clock->hour = 8;
                 clock->day++;
             }
