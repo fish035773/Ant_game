@@ -1,7 +1,9 @@
 #include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_primitives.h>
 #include "boss_fight.h"
 #include "sceneManager.h"
 #include "../element/boss.h"
+#include "../element/player.h"
 bool can_press = true;
 
 Scene *New_Boss_Fight(int label)
@@ -19,9 +21,12 @@ Scene *New_Boss_Fight(int label)
     pObj->pDerivedObj = pDerivedObj;
 
     Elements *boss = New_Boss(BOSS_L);
+    Elements *player = New_Player(PLAYER_L);
     _Register_elements(pObj, boss);
+    _Register_elements(pObj, player);
     pDerivedObj->boss = boss;
-    
+    pDerivedObj->player = player;
+
     // setting derived object function
     pObj->Update = boss_fight_update;
     pObj->Draw = boss_fight_draw;
@@ -33,6 +38,8 @@ void boss_fight_update(Scene *self)
 {   
     Boss_Fight *bf = (Boss_Fight*)self->pDerivedObj;
     Boss *boss = (Boss*)(bf->boss->pDerivedObj);
+    Player *player = (Player*)(bf->player->pDerivedObj);
+
 
     ALLEGRO_KEYBOARD_STATE key;
     al_get_keyboard_state(&key);
@@ -45,32 +52,28 @@ void boss_fight_update(Scene *self)
             }else if(key_state[ALLEGRO_KEY_S]){
                 bf->menu_index = (bf->menu_index + 1) % 2;
                 can_press = false;
-            }else if(key_state[ALLEGRO_KEY_ENTER]){
+            }else if(key_state[ALLEGRO_KEY_M]){
                 if(bf->menu_index == 0){
                     bf->menu_state = MENU_ATTACK_BAR;
+                    bf->turn_state = TURN_PLAYER_ATTACK_BAR;
                     bf->bar_position = 0.0f;
                     bf->bar_speed = 0.015f;
                     bf->bar_direction = true;
                     bf->bar_active = true;
                 }else if(bf->menu_index == 1){
                     bf->menu_state = MENU_DEFEND;
+                    bf->turn_state = TURN_PLAYER_ATTACK_BAR;
                 }
                 can_press = false;
             }
         }
     }
 
-    if(!key_state[ALLEGRO_KEY_W] && !key_state[ALLEGRO_KEY_S] && !key_state[ALLEGRO_KEY_ENTER]){
+    if(!key_state[ALLEGRO_KEY_W] && !key_state[ALLEGRO_KEY_S] && !key_state[ALLEGRO_KEY_M]){
         can_press = true;
     }
 
-    if(bf->menu_state == MENU_ATTACK_WAIT){
-        if((bf->attack_return_timer-- <= 0)){
-            bf->menu_state = MENU_SELECTING;
-        }
-    }
-    if(bf->bar_active && bf->menu_state == MENU_ATTACK_BAR){
-        
+    if(bf->bar_active && bf->menu_state == MENU_ATTACK_BAR && bf->turn_state == TURN_PLAYER_ATTACK_BAR){
         if(bf->bar_direction){
             bf->bar_position += bf->bar_speed;
         }else {
@@ -84,9 +87,6 @@ void boss_fight_update(Scene *self)
             bf->bar_position = 0.0f;
             bf->bar_direction = true;
         }
-        //WIDTH = 87
-        //RED = 20, YELLOW = 18, GREEN = 7
-        
 
         if(al_key_down(&key, ALLEGRO_KEY_SPACE)){
             float damage = 0.0f;
@@ -102,9 +102,42 @@ void boss_fight_update(Scene *self)
             }
             boss->hp -= damage;
             bf->bar_active = false;
-            bf->attack_return_timer = 80;
-            bf->menu_state = MENU_ATTACK_WAIT;
+
+            bf->turn_state = TURN_PLAYER_ATTACK_WAIT;
+            bf->wait_timer = 30;
             can_press = false;
+        }
+    }
+
+    if(bf->turn_state == TURN_PLAYER_ATTACK_WAIT){
+        player->hp -= boss->damage;
+        boss->damage = 0;
+        bf->wait_timer--;
+        if(bf->wait_timer <= 0){
+            bf->turn_state = TURN_BOSS_ATTACK;
+            bf->wait_timer = 30;
+        }
+    }
+
+    if(bf->turn_state == TURN_BOSS_ATTACK){
+        bf->wait_timer--;
+        if(bf->wait_timer <= 0){
+            boss->damage = 10 + rand() % 10;
+
+            if(player->hp < 0) player->hp = 0;
+
+            bf->turn_state = TURN_BOSS_WAIT;
+            bf->wait_timer = 30;
+            bf->hurt_timer = 10;
+        }
+    }
+
+    if(bf->turn_state == TURN_BOSS_WAIT){
+        bf->hurt_timer--;
+        bf->wait_timer--;
+        if(bf->wait_timer <= 0){
+            bf->turn_state = TURN_PLAYER_SELECTING;
+            bf->menu_state = MENU_SELECTING;
         }
     }
 
@@ -157,6 +190,10 @@ void boss_fight_draw(Scene *self)
     int x = 30;
     int y_attack = 240;
     int y_defend = 290;
+
+    if(bf->hurt_timer > 0){
+        al_draw_filled_rectangle(0, 0, WIDTH, HEIGHT, al_map_rgba(255, 106, 69, 50));
+    }
 
     if(bf->menu_state == MENU_SELECTING){
         if(bf->menu_index == 0){

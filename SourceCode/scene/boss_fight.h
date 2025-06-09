@@ -6,6 +6,15 @@
 /*
    [game scene object]
 */
+
+typedef enum{
+    TURN_PLAYER_SELECTING,
+    TURN_PLAYER_ATTACK_BAR,
+    TURN_PLAYER_ATTACK_WAIT,
+    TURN_BOSS_ATTACK,
+    TURN_BOSS_WAIT
+}TurnState;
+
 typedef enum{
     MENU_NONE,
     MENU_SELECTING,
@@ -32,9 +41,12 @@ typedef struct _Boss_Fight
     ALLEGRO_BITMAP *slide_bar;
     ALLEGRO_BITMAP *slide_bar_pointer;
 
-    int attack_return_timer;
+    TurnState turn_state;
+    int wait_timer;
+    int hurt_timer;
 
     Elements *boss;
+    Elements *player;
 } Boss_Fight;
 
 
