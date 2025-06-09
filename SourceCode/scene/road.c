@@ -87,7 +87,15 @@ void  road_update(Scene *self)
     if(chara->y >= HEIGHT){
         chara->y = 10;
     }
-    
+    if(game_clock.hour >= 17){
+        al_rest(1);
+        game_clock.day += 1;
+        game_clock.hour = 8;
+        game_clock.min = 0;
+        self->scene_end = true;
+        window = 1;
+        return;
+    }
     //switch to the first scene and the third dcene
     if (chara != NULL && chara->x <= 0)
     {

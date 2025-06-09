@@ -84,7 +84,15 @@ void kitchen_update(Scene *self)
         chara->y = 10;
     }
     //switch to the second map
-    
+    if(game_clock.hour >= 17){
+        al_rest(1);
+        game_clock.day += 1;
+        game_clock.hour = 8;
+        game_clock.min = 0;
+        self->scene_end = true;
+        window = 1;
+        return;
+    }
     if (chara != NULL && chara->x <= 0)
     {
         self->scene_end = true;
@@ -96,7 +104,6 @@ void kitchen_update(Scene *self)
         window = 4;
         return;
     }
-    
 }
 void kitchen_draw(Scene *self)
 {
