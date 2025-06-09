@@ -11,6 +11,7 @@ typedef struct{
     int food;
 } Resources;
 
+
 void Init_Resources(Resources *self);
 void Update_Resources(Resources *self);
 void Resources_Draw(Resources *self, int x, int y);

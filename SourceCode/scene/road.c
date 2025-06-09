@@ -7,6 +7,7 @@
 #include "../element/teleport.h"
 #include "../element/tree.h"
 #include "../element/projectile.h"
+#include "../element/food.h"
 /*
    The middle scene
 */
@@ -24,6 +25,7 @@ Scene *New_Road(int label)
     }
     // register element
     _Register_elements(pObj, New_Floor(Floor_L, "assets/map/road_map.txt"));
+    _Register_elements(pObj, New_Food(Food_L, 300, 250,pObj->label));//增加食物
     //_Register_elements(pObj, New_Teleport(Teleport_L));
     //_Register_elements(pObj, New_Tree(Tree_L));
     _Register_elements(pObj, ele);

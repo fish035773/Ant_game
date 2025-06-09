@@ -7,7 +7,7 @@
 #include "../element/teleport.h"
 #include "../element/tree.h"
 #include "../element/projectile.h"
-
+#include "../element/food.h"
 /*
    The leftmost scene
 */
@@ -25,10 +25,13 @@ Scene *New_Nest(int label)
     
     Elements *floor = New_Floor(Floor_L, "assets/map/nest_map.txt");
     Elements *ele = New_Character(Character_L);
+    Elements *food1 = New_Food(Food_L, 350, 145,pObj->label);//增加食物
+    Elements *food2 = New_Food(Food_L, 400, 100,pObj->label);//增加食物
     // register element
     _Register_elements(pObj, floor);
     _Register_elements(pObj, ele);
-
+    _Register_elements(pObj, food1);//增加食物
+    _Register_elements(pObj, food2);//增加食物
     Character *chara = (Character*)ele->pDerivedObj;
     
     // Set character position based on previous scene

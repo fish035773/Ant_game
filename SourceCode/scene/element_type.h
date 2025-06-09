@@ -9,7 +9,8 @@ typedef enum EleType
     Character_L,
     Projectile_L,
     BOSS_L,
-    PLAYER_L
+    PLAYER_L,
+    Food_L
 } EleType;
 
 #endif

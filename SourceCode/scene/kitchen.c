@@ -7,6 +7,7 @@
 #include "../element/teleport.h"
 #include "../element/tree.h"
 #include "../element/projectile.h"
+#include "../element/food.h"
 /*
    Kitchen is the rightmost scene
 */
@@ -24,10 +25,11 @@ Scene *New_Kitchen(int label)
     
     Elements *floor = New_Floor(Floor_L, "assets/map/kitchen_map.txt");
     Elements *ele = New_Character(Character_L);
+    Elements *food = New_Food(Food_L, 300, 240,pObj->label);//增加食物
     // register element
     _Register_elements(pObj, floor);
     _Register_elements(pObj, ele);
-
+    _Register_elements(pObj, food);//增加食物
     Character *chara = (Character*)ele->pDerivedObj;
     
     chara->x = 10;

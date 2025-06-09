@@ -1,7 +1,7 @@
-#include "resources.h"
+#include "Resources.h"
 extern ALLEGRO_FONT* count_font;
 void Init_Resources(Resources *self){
-    self->ants = 0;
+    self->ants = 1;
     self->food = 0;
 }
 void Update_Resources(Resources *self){

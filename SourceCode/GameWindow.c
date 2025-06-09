@@ -16,10 +16,11 @@
 // include scene and following component
 #include "scene/sceneManager.h"
 #include <stdbool.h>
-static GameClock game_clock;
 static double last_time = 0;
 static int last_day = 1;
 extern ALLEGRO_FONT* count_font;
+extern GameClock game_clock;
+extern Resources resources;
 
 Game *New_Game()
 {
@@ -110,7 +111,7 @@ void game_init(Game *self)
     last_time = al_get_time();
     Init_Game_Clock(&game_clock);
     // Init resorces
-    Init_Resources(&self->resources);
+    Init_Resources(&resources);
     // Create display
     self->display = al_create_display(GAME_WIDTH, GAME_HEIGHT);
     GAME_ASSERT(self->display, "failed to create display.");
@@ -159,8 +160,25 @@ bool game_update(Game *self)
 
     if(game_clock.day != last_day){
         last_day = game_clock.day;
-        Update_Resources(&self->resources);
+        Update_Resources(&resources);
     }
+    //只有螞蟻收集部分才會更新時間
+    if (scene->label == Nest_L || scene->label == Road_L || scene->label == Kitchen_L) {
+        
+        Update_Game_Clock(&game_clock, delta);
+
+        // 檢查是否超過3天
+        if (game_clock.day > 3) {
+            self->should_change_scene = true;
+            self->next_scene_type = Game_Over_L;
+        }
+
+        if(game_clock.day != last_day){
+            last_day = game_clock.day;
+            Update_Resources(&resources);
+        }
+    }
+
     scene->Update(scene);
 
     //switch scene
@@ -179,6 +197,10 @@ bool game_update(Game *self)
     }
     
     if (self->should_change_scene) {
+        
+        if (self->next_scene_type == GAME_TERMINATE) {
+            return false; // 終止遊戲主循環
+        }
         if (scene->Destroy)
             scene->Destroy(scene);
         create_scene(self->next_scene_type);
@@ -209,7 +231,7 @@ void game_draw(Game *self)
     );
 
     Clock_Draw(&game_clock, 20, 20);
-    Resources_Draw(&self->resources, WIDTH - 100, 20);
+    Resources_Draw(&resources, WIDTH - 100, 20);
 
     al_flip_display();
 }

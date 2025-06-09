@@ -6,6 +6,9 @@
 #include <allegro5/allegro_ttf.h>
 #define GAME_TERMINATE -1
 #include "shapes/Point.h"
+#include "./GameClock.h"
+#include "./Resources.h"
+#include "shapes/Point.h"
 #define debug(x)                                                            \
     if (x)                                                                  \
     {                                                                       \
@@ -14,6 +17,16 @@
 #define MAX_ELEMENT 100
 #define min(x, y) ((x) > (y) ? (y) : (x))
 #define max(x, y) ((x) < (y) ? (y) : (x))
+
+// Add near other typedefs or structs
+typedef struct {
+    bool is_collected;
+    int day_collected;
+} FoodState;
+
+// Add with other extern declarations
+extern FoodState food_states[5]; // 5 scenes: Menu, Nest, Road, Kitchen, Boss_Fight
+
 // note that you can't assign initial value for extern variable!
 extern const double FPS;
 extern const int WIDTH;
@@ -31,4 +44,8 @@ extern bool debug_mode;
 extern int spawn_timer;
 ALLEGRO_FONT* count_font;
 
+// extern int spawn_timer;
+extern ALLEGRO_FONT* count_font;
+extern GameClock game_clock;
+extern Resources resources;
 #endif
