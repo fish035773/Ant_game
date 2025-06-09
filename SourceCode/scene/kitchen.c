@@ -16,7 +16,7 @@ Scene *New_Kitchen(int label)
     Kitchen *pDerivedObj = (Kitchen *)malloc(sizeof(Kitchen));
     Scene *pObj = New_Scene(label);
     // setting derived object member
-    pDerivedObj->background = al_load_bitmap("assets/image/background_layer_1.png");
+    pDerivedObj->background = al_load_bitmap("assets/image/kitchen_background.jpg");
     if(!pDerivedObj->background){
         fprintf(stderr, "[ERROR] Failed to load background\n");
         exit(1);
@@ -25,7 +25,7 @@ Scene *New_Kitchen(int label)
     
     Elements *floor = New_Floor(Floor_L, "assets/map/kitchen_map.txt");
     Elements *ele = New_Character(Character_L);
-    Elements *food = New_Food(Food_L, 300, 240,pObj->label);//增加食物
+    Elements *food = New_Food(Food_L, 300, 230,pObj->label);//增加食物
     // register element
     _Register_elements(pObj, floor);
     _Register_elements(pObj, ele);
@@ -33,7 +33,7 @@ Scene *New_Kitchen(int label)
     Character *chara = (Character*)ele->pDerivedObj;
     
     chara->x = 10;
-    chara->y = 10;
+    chara->y = 100;
     
     // setting derived object function
     pObj->Update = kitchen_update;

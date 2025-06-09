@@ -13,11 +13,12 @@ Scene *New_Boss_Fight(int label)
     
     // setting derived object member
     pDerivedObj->menu_state = MENU_SELECTING;
-    pDerivedObj->background = al_load_bitmap("assets/image/background_layer_1.png");
+    pDerivedObj->background = al_load_bitmap("assets/image/boss_fight_background.jpg");
     pDerivedObj->attack_button = al_load_bitmap("assets/image/attack_button.png");
     pDerivedObj->defend_button = al_load_bitmap("assets/image/defend_button.png");
     pDerivedObj->slide_bar = al_load_bitmap("assets/image/slide_bar.png");
     pDerivedObj->slide_bar_pointer = al_load_bitmap("assets/image/slide_bar_pointer.png");
+    pDerivedObj->hurt_timer = 0;
     pObj->pDerivedObj = pDerivedObj;
 
     Elements *boss = New_Boss(BOSS_L);
@@ -101,6 +102,11 @@ void boss_fight_update(Scene *self)
                 damage = 0;
             }
             boss->hp -= damage;
+            if(boss->hp <= 0) {
+                boss->hp = 0;
+                scene->scene_end = true;
+                window = 6;
+            }
             bf->bar_active = false;
 
             bf->turn_state = TURN_PLAYER_ATTACK_WAIT;
@@ -110,8 +116,6 @@ void boss_fight_update(Scene *self)
     }
 
     if(bf->turn_state == TURN_PLAYER_ATTACK_WAIT){
-        player->hp -= boss->damage;
-        boss->damage = 0;
         bf->wait_timer--;
         if(bf->wait_timer <= 0){
             bf->turn_state = TURN_BOSS_ATTACK;
@@ -130,6 +134,8 @@ void boss_fight_update(Scene *self)
             bf->wait_timer = 30;
             bf->hurt_timer = 10;
         }
+        player->hp -= boss->damage;
+        boss->damage = 0;
     }
 
     if(bf->turn_state == TURN_BOSS_WAIT){

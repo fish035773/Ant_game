@@ -11,7 +11,9 @@ void init_tile_type_table(){
     for (int i = 162; i <= 189; i++){
         tile_type_table[i] = TILE_TYPE_GROUND;
     }
-    tile_type_table[81] = TILE_TYPE_CLIMABLE;
+    for (int i = 77; i <= 81; i++){
+        tile_type_table[i] = TILE_TYPE_GROUND;
+    }
 }
 /*
    [floor function]

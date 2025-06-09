@@ -1,18 +1,34 @@
 #include "food.h"
 #include "../global.h"
 #include "../scene/scene.h"
+#include <allegro5/allegro.h>
 #include "charater.h"
 #include "../shapes/Rectangle.h"
 #include "../scene/element_type.h" //  <-- 新增
 #include "../scene/sceneManager.h"   //  <-- 新增
 #include "collision.h"             //  <-- 新增 (為了 check_collision)
 extern Resources resources;
+bool f_key_released = true;
+bool space_key_released = true;
+
+#define FOOD_POS_COUNT 4
+const int food_spawn_x[FOOD_POS_COUNT] = {100, 200, 300, 400};
+const int food_spawn_y[FOOD_POS_COUNT] = {100, 150, 120, 180};
 
 Elements *New_Food(int label, int x, int y,int scene_label) {
+    al_init();
     Food *pDerivedObj = (Food *)malloc(sizeof(Food));
     Elements *pObj = New_Elements(label);
 
     pDerivedObj->img = al_load_bitmap("assets/image/icon.jpg");
+    pDerivedObj->slide_bar = al_load_bitmap("assets/image/slide_bar.png");
+    pDerivedObj->slide_bar_pointer = al_load_bitmap("assets/image/slide_bar_pointer.png");
+
+    pDerivedObj->alert_bar_full = al_load_bitmap("assets/image/alert_full.png");
+    pDerivedObj->alert_bar_yellow= al_load_bitmap("assets/image/alert_yellow.png");
+    pDerivedObj->alert_bar_red = al_load_bitmap("assets/image/alert_red.png");
+    pDerivedObj->alert_bar_empty = al_load_bitmap("assets/image/alert_empty.png");
+
     if (!pDerivedObj->img) {
         fprintf(stderr, "failed to load food image\n");
         return NULL;
@@ -22,14 +38,28 @@ Elements *New_Food(int label, int x, int y,int scene_label) {
     pDerivedObj->height = 32;
     pDerivedObj->x = x;
     pDerivedObj->y = y;
-    pDerivedObj->hitbox = New_Rectangle(x, y, x + pDerivedObj->width, y + pDerivedObj->height);
+
+    int half_w = pDerivedObj->width / 2;
+    int half_h = pDerivedObj->height / 2;
+    pDerivedObj->hitbox = New_Rectangle(
+        pDerivedObj->x - half_w,
+        pDerivedObj->y - half_h,
+        pDerivedObj->x + half_w,
+        pDerivedObj->y + half_h
+    );
 
     pDerivedObj->is_collected = food_states[scene_label].is_collected;
     pDerivedObj->day_collected = food_states[scene_label].day_collected;
     pDerivedObj->collection_progress = 0;
     // pDerivedObj->character_is_colliding = false;
-    
+    pDerivedObj->alert_bar_active = false;
+    pDerivedObj->alert_bar_direction = true;
+    pDerivedObj->alert_bar_position = 0.0f;
+    pDerivedObj->alert_bar_speed = 0.02f;
+    pDerivedObj->alert_level = 3;
+
     pObj->pDerivedObj = pDerivedObj;
+    
     pObj->inter_obj[pObj->inter_len++] = Character_L;
 
     pObj->Update = Food_update;
@@ -42,14 +72,29 @@ Elements *New_Food(int label, int x, int y,int scene_label) {
 
 void Food_update(Elements *self) {
     Food *food = (Food *)(self->pDerivedObj);
+    printf("food->is_collected: %d, game_day: %d, day_collected: %d\n", food->is_collected, game_clock.day, food->day_collected);
 
     // Respawn logic
     if (food->is_collected && game_clock.day > food->day_collected) {
+        int index = rand() % FOOD_POS_COUNT;
+        food->x = food_spawn_x[index];
+        food->y = food_spawn_y[index];
+
+        // 更新 hitbox
+        Rectangle *rect = (Rectangle *)(food->hitbox->pDerivedObj);
+        int w = rect->x2 - rect->x1;
+        int h = rect->y2 - rect->y1;
+
+        rect->x1 = food->x - w / 2;
+        rect->x2 = food->x + w / 2;
+        rect->y1 = food->y - h / 2;
+        rect->y2 = food->y + h / 2;
+
         food->is_collected = false;
         food->day_collected = -1;
-
         food_states[scene->label] = (FoodState){.is_collected = false, .day_collected = -1};
     }
+
 
     if (food->is_collected) {
         return;
@@ -61,28 +106,58 @@ void Food_update(Elements *self) {
     if (char_vec.len > 0) {
         Elements *char_ele = char_vec.arr[0];
         Character *character = (Character *)(char_ele->pDerivedObj);
-        if  (food->hitbox->overlap(food->hitbox, character->hitbox)) {
-            colliding = true;
-        }
+
+        colliding = check_collision(food->hitbox, character->hitbox);
     }
 
     if (colliding) {
-        if (key_state[ALLEGRO_KEY_F]) {
-            food->collection_progress += COLLECTION_RATE;
-            if (food->collection_progress >= MAX_COLLECTION_PROGRESS) {
-                resources.food += 2 * resources.ants;
-                food->is_collected = true;
-                food->day_collected = game_clock.day;
-                food->collection_progress = 0;
-
-                food_states[scene->label] = (FoodState){.is_collected = true, .day_collected = game_clock.day};
-            }
-        } else {
-            food->collection_progress = 0; // Reset progress if F is not held
+        if (!food->alert_bar_active && key_state[ALLEGRO_KEY_F] && f_key_released) {
+            food->alert_bar_active = true;
+            food->alert_bar_position = 0.0f;
+            food->alert_bar_direction = true;
+            food->alert_bar_speed = 0.02f;
+            f_key_released = false;
         }
-    } else {
-        food->collection_progress = 0; // Reset progress if not colliding
+
+        if (food->alert_bar_active) {
+            if (food->alert_bar_direction)
+                food->alert_bar_position += food->alert_bar_speed;
+            else
+                food->alert_bar_position -= food->alert_bar_speed;
+
+            if (food->alert_bar_position >= 1.0f) {
+                food->alert_bar_position = 1.0f;
+                food->alert_bar_direction = false;
+            } else if (food->alert_bar_position <= 0.0f) {
+                food->alert_bar_position = 0.0f;
+                food->alert_bar_direction = true;
+            }
+
+            if (key_state[ALLEGRO_KEY_M] && space_key_released) {
+                space_key_released = false;
+                food->alert_bar_active = false;
+
+                if (food->alert_bar_position > 0.44f && food->alert_bar_position < 0.52f) {
+                    resources.food += 5 * resources.ants;
+                    food->is_collected = true;
+                    food->day_collected = game_clock.day;
+                }else if(food->alert_bar_position > 0.22f && food->alert_bar_position < 0.72f){
+                    resources.food += 2 * resources.ants;
+                    food->is_collected = true;
+                    food->day_collected = game_clock.day;
+                }else {
+                    food->alert_level--;
+                    if (food->alert_level <= 0) {
+                        window = GAME_TERMINATE;
+                    }
+                }
+                al_rest(0.5);
+            }
+        }
     }
+
+    if (!key_state[ALLEGRO_KEY_F]) f_key_released = true;
+    if (!key_state[ALLEGRO_KEY_SPACE]) space_key_released = true;
 }
 
 void Food_interact(Elements *self) {
@@ -104,25 +179,45 @@ void Food_interact(Elements *self) {
 
 void Food_draw(Elements *self) {
     Food *food = (Food *)(self->pDerivedObj);
+    
     if (!food->is_collected) {
-        al_draw_scaled_bitmap(food->img, 0, 0, al_get_bitmap_width(food->img), al_get_bitmap_height(food->img), food->x, food->y, food->width, food->height, 0);
-
-        if (food->collection_progress > 0) {
-            float bar_x = food->x;
-            float bar_y = food->y - 10;
-            float bar_width = food->width;
-            float bar_height = 5;
-
-            // Draw progress bar background
-            al_draw_filled_rectangle(bar_x, bar_y, bar_x + bar_width, bar_y + bar_height, al_map_rgb(100, 100, 100));
-
-            // Draw progress
-            float progress_width = (food->collection_progress / MAX_COLLECTION_PROGRESS) * bar_width;
-            al_draw_filled_rectangle(bar_x, bar_y, bar_x + progress_width, bar_y + bar_height, al_map_rgb(0, 255, 0));
+        al_draw_scaled_bitmap(
+            food->img, 0, 0,
+            al_get_bitmap_width(food->img),
+            al_get_bitmap_height(food->img),
+            food->x - food->width / 2,
+            food->y - food->height / 2,
+            food->width,
+            food->height,
+            0
+        );
+        //Rectangle *f = (Rectangle *)food->hitbox->pDerivedObj;
+        //al_draw_rectangle(f->x1, f->y1, f->x2, f->y2, al_map_rgb(255, 0, 0), 2);
+        if(food->alert_bar_active){
+            int bar_width = 219;
+            //int bar_height = al_get_bitmap_height(food->slide_bar);
             
-            // Draw progress bar outline
-            al_draw_rectangle(bar_x, bar_y, bar_x + bar_width, bar_y + bar_height, al_map_rgb(255, 255, 255), 2);
+            int bar_x = (WIDTH - bar_width) / 2;
+            int bar_y = 250;
+
+            al_draw_bitmap(food->slide_bar, bar_x, bar_y, 0);
+            float bar_position = food->alert_bar_position;
+            int pointer_x = bar_x + (int)(bar_position * bar_width) + 10;
+            int pointer_y = bar_y + 32;
+            
+            int pointer_width = al_get_bitmap_width(food->slide_bar_pointer);
+            //int pointer_height = al_get_bitmap_height(food->slide_bar_pointer);
+            al_draw_bitmap(food->slide_bar_pointer, pointer_x - pointer_width / 2, pointer_y, 0);
         }
+    }
+    if(food->alert_level == 3){
+        al_draw_bitmap(food->alert_bar_full, WIDTH - 50, 30, 0);
+    }else if(food->alert_level == 2){
+        al_draw_bitmap(food->alert_bar_yellow, WIDTH - 50, 30, 0);
+    }else if(food->alert_level == 1){
+        al_draw_bitmap(food->alert_bar_red, WIDTH - 50, 30, 0);
+    }else if(food->alert_level == 0){
+        al_draw_bitmap(food->alert_bar_empty, WIDTH - 50, 30, 0);
     }
 }
 

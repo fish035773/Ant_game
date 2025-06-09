@@ -6,17 +6,14 @@
 #include "../element/floor.h"
 #include "../element/teleport.h"
 #include "../element/tree.h"
-#include "../element/projectile.h"
-#include "../element/food.h"
-/*
-   The leftmost scene
-*/
+#include "../element/bed.h"
+
 Scene *New_Nest(int label)
 {
     Nest *pDerivedObj = (Nest *)malloc(sizeof(Nest));
     Scene *pObj = New_Scene(label);
     // setting derived object member
-    pDerivedObj->background = al_load_bitmap("assets/image/background_layer_1.png");
+    pDerivedObj->background = al_load_bitmap("assets/image/nest_background.png");
     if(!pDerivedObj->background){
         fprintf(stderr, "[ERROR] Failed to load background\n");
         exit(1);
@@ -25,22 +22,24 @@ Scene *New_Nest(int label)
     
     Elements *floor = New_Floor(Floor_L, "assets/map/nest_map.txt");
     Elements *ele = New_Character(Character_L);
-    Elements *food1 = New_Food(Food_L, 350, 145,pObj->label);//增加食物
-    Elements *food2 = New_Food(Food_L, 400, 100,pObj->label);//增加食物
+    Elements *bed = New_Bed(BED_L);
+    //Elements *food1 = New_Food(Food_L, 350, 145,pObj->label);//增加食物
+    //Elements *food2 = New_Food(Food_L, 400, 100,pObj->label);//增加食物
     // register element
     _Register_elements(pObj, floor);
     _Register_elements(pObj, ele);
-    _Register_elements(pObj, food1);//增加食物
-    _Register_elements(pObj, food2);//增加食物
+    _Register_elements(pObj, bed);
+   // _Register_elements(pObj, food1);//增加食物
+    //_Register_elements(pObj, food2);//增加食物
     Character *chara = (Character*)ele->pDerivedObj;
     
     // Set character position based on previous scene
     if(has_last_position){
         if(last_scene == Road_L && last_x <= 0){
             chara->x = WIDTH - chara->width - 20;
-        }else chara->x = 10;
-    }else chara->x = 5;
-    chara->y = 10;
+        }else chara->x = 100;
+    }else chara->x = 100;
+    chara->y = 290;
 
     // setting derived object function
     pObj->Update = nest_update;

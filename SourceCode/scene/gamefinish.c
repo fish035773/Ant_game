@@ -19,7 +19,7 @@ Scene *New_Game_Finish(int label) {
 }
 
 void game_finish_update(Scene *self) {
-    if (key_state[ALLEGRO_KEY_ENTER]) {
+    if (key_state[ALLEGRO_KEY_SPACE]) {
         self->scene_end = true;
         window = GAME_TERMINATE;
     }

@@ -199,6 +199,7 @@ bool game_update(Game *self)
     if (self->should_change_scene) {
         
         if (self->next_scene_type == GAME_TERMINATE) {
+            if(key_state[ALLEGRO_KEY_ENTER])
             return false; // 終止遊戲主循環
         }
         if (scene->Destroy)
