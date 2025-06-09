@@ -35,6 +35,7 @@ Elements *New_Boss(int label)
     pDerivedObj->y = (HEIGHT - pDerivedObj->height) / 2 - 10;
     pDerivedObj->max_hp = 100;
     pDerivedObj->hp = 100;
+    pDerivedObj->display_hp = 100;
     pDerivedObj->bar_width = 260;
     pDerivedObj->bar_height = 42;
     pObj->pDerivedObj = pDerivedObj;
@@ -50,8 +51,21 @@ void Boss_interact(Elements *self){
 }
 void Boss_update(Elements *self)
 {
+    Boss *chara = (Boss*)self->pDerivedObj;
+    float speed = 0.005;
+    if(chara->display_hp > chara->hp){
+        chara->display_hp -= speed;
+        if(chara->display_hp < chara->hp){
+            chara->display_hp = chara->hp;
+        }
+    }else if(chara->display_hp < chara->hp){
+        chara->display_hp += speed;
+        if(chara->display_hp > chara->hp){
+            chara->display_hp = chara->hp;
+        }
+    }
+
     return;
-    //Boss *chara = ((Boss *)(self->pDerivedObj));
 }
 void Boss_draw(Elements *self)
 {
@@ -61,9 +75,11 @@ void Boss_draw(Elements *self)
     if(frame){
         al_draw_bitmap(frame, chara->x, chara->y, 0);
     }
+
     float bar_x = (WIDTH - chara->bar_width) / 2;
     float bar_y = chara->y - chara->bar_height - 5;
     al_draw_bitmap(chara->bar_background, bar_x, bar_y, 0);
+
     float padding_x = 7;
     float padding_y = 5;
     float inner_x = bar_x + padding_x;
@@ -72,7 +88,11 @@ void Boss_draw(Elements *self)
     float inner_height = chara->bar_height - 2 * padding_y;
     
     float hp_ratio = (float)chara->hp / chara->max_hp;
-    //float hp_width = chara->bar_width * hp_ratio;
+    float display_ratio = (float)chara->display_hp / chara->max_hp;
+    
+    al_draw_filled_rectangle(inner_x, inner_y,
+                            inner_x + inner_width * display_ratio, inner_y + inner_height - 15,
+                            al_map_rgb(255, 106, 69));
     al_draw_filled_rectangle(inner_x, inner_y,
                             inner_x + inner_width * hp_ratio, inner_y + inner_height - 15,
                             al_map_rgb(255, 61, 31));

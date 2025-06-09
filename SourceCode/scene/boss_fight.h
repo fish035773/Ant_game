@@ -2,7 +2,7 @@
 #define BOSS_FIGHT_H_INCLUDED
 #include "scene.h"
 #include "element_type.h"
-
+#include "../element/element.h"
 /*
    [game scene object]
 */
@@ -12,7 +12,8 @@ typedef enum{
     MENU_ATTACK,
     MENU_DEFEND,
     MENU_ATTACK_BAR,
-    MENU_ATTACK_JUDGE
+    MENU_ATTACK_JUDGE,
+    MENU_ATTACK_WAIT
 }BossMenu;
 
 typedef struct _Boss_Fight
@@ -30,6 +31,10 @@ typedef struct _Boss_Fight
     bool bar_active;
     ALLEGRO_BITMAP *slide_bar;
     ALLEGRO_BITMAP *slide_bar_pointer;
+
+    int attack_return_timer;
+
+    Elements *boss;
 } Boss_Fight;
 
 

@@ -18,6 +18,7 @@ typedef struct _Boss
     
     int hp;
     int max_hp;
+    int display_hp;
     int damage;
     int bar_width;
     int bar_height;

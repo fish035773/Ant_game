@@ -20,6 +20,7 @@ Scene *New_Boss_Fight(int label)
 
     Elements *boss = New_Boss(BOSS_L);
     _Register_elements(pObj, boss);
+    pDerivedObj->boss = boss;
     
     // setting derived object function
     pObj->Update = boss_fight_update;
@@ -31,6 +32,8 @@ Scene *New_Boss_Fight(int label)
 void boss_fight_update(Scene *self)
 {   
     Boss_Fight *bf = (Boss_Fight*)self->pDerivedObj;
+    Boss *boss = (Boss*)(bf->boss->pDerivedObj);
+
     ALLEGRO_KEYBOARD_STATE key;
     al_get_keyboard_state(&key);
 
@@ -61,6 +64,11 @@ void boss_fight_update(Scene *self)
         can_press = true;
     }
 
+    if(bf->menu_state == MENU_ATTACK_WAIT){
+        if((bf->attack_return_timer-- <= 0)){
+            bf->menu_state = MENU_SELECTING;
+        }
+    }
     if(bf->bar_active && bf->menu_state == MENU_ATTACK_BAR){
         
         if(bf->bar_direction){
@@ -78,17 +86,25 @@ void boss_fight_update(Scene *self)
         }
         //WIDTH = 87
         //RED = 20, YELLOW = 18, GREEN = 7
+        
+
         if(al_key_down(&key, ALLEGRO_KEY_SPACE)){
+            float damage = 0.0f;
             bf->bar_active = false;
             bf->menu_state = MENU_ATTACK_JUDGE;
 
             if(bf->bar_position > 0.44f && bf->bar_position < 0.52f){
-                printf("PERFECT\n");
+                damage += 20;
             }else if(bf->bar_position > 0.22f && bf->bar_position < 0.72f){
-                printf("GOOD\n");
+                damage += 10;
             }else{
-                printf("MISS\n");
+                damage = 0;
             }
+            boss->hp -= damage;
+            bf->bar_active = false;
+            bf->attack_return_timer = 80;
+            bf->menu_state = MENU_ATTACK_WAIT;
+            can_press = false;
         }
     }
 
@@ -138,9 +154,9 @@ void boss_fight_draw(Scene *self)
         ele->Draw(ele);
     }
 
-    int x = (WIDTH - 328) / 2;
+    int x = 30;
     int y_attack = 240;
-    int y_defend = 300;
+    int y_defend = 290;
 
     if(bf->menu_state == MENU_SELECTING){
         if(bf->menu_index == 0){
@@ -152,7 +168,7 @@ void boss_fight_draw(Scene *self)
         }
     }
 
-    if(bf->menu_state == MENU_ATTACK_BAR || bf->menu_state == MENU_ATTACK_JUDGE){
+    if(bf->menu_state == MENU_ATTACK_BAR || bf->menu_state == MENU_ATTACK_JUDGE || bf->menu_state == MENU_ATTACK_WAIT){
         int bar_width = 219;
         //int bar_height = al_get_bitmap_height(bf->slide_bar);
         int bar_x = (WIDTH - bar_width) / 2;
