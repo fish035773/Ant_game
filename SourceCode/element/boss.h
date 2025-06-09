@@ -15,6 +15,13 @@ typedef struct _Boss
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
     int anime;      // counting the time of animation
     int anime_time; // indicate how long the animation
+    
+    int hp;
+    int max_hp;
+    int damage;
+    int bar_width;
+    int bar_height;
+    ALLEGRO_BITMAP *bar_background;
 } Boss;
 Elements *New_Boss(int label);
 void Boss_update(Elements *self);

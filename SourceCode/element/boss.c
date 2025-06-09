@@ -1,6 +1,8 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 #include "boss.h"
 #include "../scene/sceneManager.h"
 #include "../algif5/algif.h"
@@ -24,12 +26,17 @@ Elements *New_Boss(int label)
     pDerivedObj->atk_Sound = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(pDerivedObj->atk_Sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(pDerivedObj->atk_Sound, al_get_default_mixer());
-
-    pDerivedObj->width = 240;
-    pDerivedObj->height = 315;
-    pDerivedObj->x = 0;
-    pDerivedObj->y = 10;
-
+    pDerivedObj->bar_background = al_load_bitmap("assets/image/boss_hp_bar.png");
+    //98
+    pDerivedObj->width = 168;
+    pDerivedObj->height = 221;
+    
+    pDerivedObj->x = (WIDTH - pDerivedObj->width) / 2;
+    pDerivedObj->y = (HEIGHT - pDerivedObj->height) / 2 - 10;
+    pDerivedObj->max_hp = 100;
+    pDerivedObj->hp = 100;
+    pDerivedObj->bar_width = 260;
+    pDerivedObj->bar_height = 42;
     pObj->pDerivedObj = pDerivedObj;
     // setting derived object function
     pObj->Draw = Boss_draw;
@@ -52,8 +59,23 @@ void Boss_draw(Elements *self)
     Boss *chara = ((Boss *)(self->pDerivedObj));
     ALLEGRO_BITMAP *frame = algif_get_bitmap(chara->anime_gif, al_get_time());
     if(frame){
-        al_draw_bitmap(frame, 5, 5, 0);
+        al_draw_bitmap(frame, chara->x, chara->y, 0);
     }
+    float bar_x = (WIDTH - chara->bar_width) / 2;
+    float bar_y = chara->y - chara->bar_height - 5;
+    al_draw_bitmap(chara->bar_background, bar_x, bar_y, 0);
+    float padding_x = 7;
+    float padding_y = 5;
+    float inner_x = bar_x + padding_x;
+    float inner_y = bar_y + padding_y + 15;
+    float inner_width = chara->bar_width - 2 * padding_x;
+    float inner_height = chara->bar_height - 2 * padding_y;
+    
+    float hp_ratio = (float)chara->hp / chara->max_hp;
+    //float hp_width = chara->bar_width * hp_ratio;
+    al_draw_filled_rectangle(inner_x, inner_y,
+                            inner_x + inner_width * hp_ratio, inner_y + inner_height - 15,
+                            al_map_rgb(255, 61, 31));
 }
 void Boss_destroy(Elements* self)
 {
