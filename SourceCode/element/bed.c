@@ -60,7 +60,7 @@ void Bed_update(Elements *self) {
     if (colliding) {
         if (key_state[ALLEGRO_KEY_F] && f_key_released) {
             game_clock.day += 1;
-            game_clock.hour = 0;
+            game_clock.hour = 8;
             game_clock.min = 0;
             f_key_released = false;
             bed->jumped = true;

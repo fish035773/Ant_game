@@ -33,9 +33,9 @@ Elements *New_Boss(int label)
     
     pDerivedObj->x = (WIDTH - pDerivedObj->width) / 2;
     pDerivedObj->y = (HEIGHT - pDerivedObj->height) / 2 - 10;
-    pDerivedObj->max_hp = 100;
-    pDerivedObj->hp = 100;
-    pDerivedObj->display_hp = 100;
+    pDerivedObj->max_hp = 300;
+    pDerivedObj->hp = 300;
+    pDerivedObj->display_hp = 300;
     pDerivedObj->bar_width = 260;
     pDerivedObj->bar_height = 42;
     pDerivedObj->damage = 0;

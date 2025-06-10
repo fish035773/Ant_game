@@ -17,7 +17,7 @@ Scene *New_Road(int label)
     Scene *pObj = New_Scene(label);
     Elements *ele = New_Character(Character_L);
     // setting derived object member
-    pDerivedObj->background = al_load_bitmap("assets/image/background_layer_1.png");
+    pDerivedObj->background = al_load_bitmap("assets/image/road_background.jpg");
     pObj->pDerivedObj = pDerivedObj;
     if(!pDerivedObj->background){
         fprintf(stderr, "[ERROR] Failed to load background\n");

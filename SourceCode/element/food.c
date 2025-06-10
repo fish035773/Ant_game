@@ -10,6 +10,7 @@
 extern Resources resources;
 bool f_key_released = true;
 bool space_key_released = true;
+bool slided = true;
 extern int alert_level;
 Elements *New_Food(int label, int x, int y, int scene_label, int id) {
 
@@ -120,23 +121,23 @@ void Food_update(Elements *self) {
             if (key_state[ALLEGRO_KEY_M] && space_key_released) {
                 space_key_released = false;
                 food->alert_bar_active = false;
-
+                //printf("%d\n", alert_level);
                 if (food->alert_bar_position > 0.44f && food->alert_bar_position < 0.52f) {
                     resources.food += 5 * resources.ants;
-                    food->is_collected = true;
-                    food->day_collected = game_clock.day;
                 }else if(food->alert_bar_position > 0.22f && food->alert_bar_position < 0.72f){
                     resources.food += 2 * resources.ants;
-                    food->is_collected = true;
-                    food->day_collected = game_clock.day;
                 }else {
-                    alert_level--;
-                    food->is_collected = true;
+                    printf("%d\n", food->id);
+                    alert_level -= 1;
                     if (alert_level <= 0) {
+                        //printf("YASSS\n");
+                        if(game_clock.hour < 17) game_clock.day += 1;
+                        game_clock.hour = 8;
+                        game_clock.min = 0;
                         resources.food = 0;
                         scene->scene_end = true;
                         window = 1;
-                        game_clock.day += 1;
+                        return;
                     }
                 }
                 food->is_collected = true;

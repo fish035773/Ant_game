@@ -10,6 +10,7 @@
 typedef struct _Nest
 {
     ALLEGRO_BITMAP *background;
+    ALLEGRO_BITMAP *ant_queen;
 
 } Nest;
 Scene *New_Nest(int label);

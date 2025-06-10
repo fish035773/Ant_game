@@ -25,7 +25,6 @@ Scene *New_Kitchen(int label)
     pDerivedObj->alert_bar_empty = al_load_bitmap("assets/image/alert_empty.png");
 
     pObj->pDerivedObj = pDerivedObj;
-    alert_level = 3;
     Elements *floor = New_Floor(Floor_L, "assets/map/kitchen_map.txt");
     Elements *ele = New_Character(Character_L);
     _Register_elements(scene, New_Food(Food_L, 300, 230, scene->label, 1));
@@ -89,6 +88,8 @@ void kitchen_update(Scene *self)
         game_clock.day += 1;
         game_clock.hour = 8;
         game_clock.min = 0;
+        resources.food -= 3;
+        if(resources.food < 0) resources.food = 0;
         self->scene_end = true;
         window = 1;
         return;

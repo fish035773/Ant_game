@@ -7,19 +7,20 @@
 #include "../element/teleport.h"
 #include "../element/tree.h"
 #include "../element/bed.h"
-
+extern int alert_level;
 Scene *New_Nest(int label)
 {
     Nest *pDerivedObj = (Nest *)malloc(sizeof(Nest));
     Scene *pObj = New_Scene(label);
     // setting derived object member
     pDerivedObj->background = al_load_bitmap("assets/image/nest_background.png");
+    pDerivedObj->ant_queen= al_load_bitmap("assets/image/ant_queen.png");
     if(!pDerivedObj->background){
         fprintf(stderr, "[ERROR] Failed to load background\n");
         exit(1);
     }
     pObj->pDerivedObj = pDerivedObj;
-    
+    alert_level = 3;
     Elements *floor = New_Floor(Floor_L, "assets/map/nest_map.txt");
     Elements *ele = New_Character(Character_L);
     Elements *bed = New_Bed(BED_L);
@@ -37,8 +38,8 @@ Scene *New_Nest(int label)
     if(has_last_position){
         if(last_scene == Road_L && last_x <= 0){
             chara->x = WIDTH - chara->width - 20;
-        }else chara->x = 100;
-    }else chara->x = 100;
+        }else chara->x = 350;
+    }else chara->x = 350;
     chara->y = 290;
 
     // setting derived object function
@@ -97,6 +98,7 @@ void nest_draw(Scene *self)
     al_clear_to_color(al_map_rgb(0, 0, 0));
     Nest *gs = ((Nest *)(self->pDerivedObj));
     al_draw_bitmap(gs->background, 0, 0, 0);
+    al_draw_bitmap(gs->ant_queen, 150, 160, 0);
     ElementVec allEle = _Get_all_elements(self);
     for (int i = 0; i < allEle.len; i++)
     {

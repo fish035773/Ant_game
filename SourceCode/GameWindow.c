@@ -95,7 +95,7 @@ void game_init(Game *self)
     printf("Game Initializing...\n");
     GAME_ASSERT(al_init(), "failed to initialize allegro.");
     al_init();
-    alert_level = 3;
+
     // initialize allegro addons
     bool addon_init = true;
     addon_init &= al_init_primitives_addon();
@@ -171,8 +171,9 @@ bool game_update(Game *self)
 
         // 檢查是否超過3天
         if (game_clock.day > 3) {
-            self->should_change_scene = true;
-            self->next_scene_type = Game_Over_L;
+            scene->scene_end = true;
+            window = 4;
+            resources.food += 30;
         }
 
         if(game_clock.day != last_day){

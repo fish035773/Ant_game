@@ -5,7 +5,7 @@
 #include "../element/boss.h"
 #include "../element/player.h"
 bool can_press = true;
-
+bool is_att = true;
 Scene *New_Boss_Fight(int label)
 {
     Boss_Fight *pDerivedObj = (Boss_Fight *)malloc(sizeof(Boss_Fight));
@@ -61,9 +61,15 @@ void boss_fight_update(Scene *self)
                     bf->bar_speed = 0.015f;
                     bf->bar_direction = true;
                     bf->bar_active = true;
+                    is_att = true;
                 }else if(bf->menu_index == 1){
-                    bf->menu_state = MENU_DEFEND;
+                    bf->menu_state = MENU_ATTACK_BAR;
                     bf->turn_state = TURN_PLAYER_ATTACK_BAR;
+                    bf->bar_position = 0.0f;
+                    bf->bar_speed = 0.015f;
+                    bf->bar_direction = true;
+                    bf->bar_active = true;
+                    is_att = false;
                 }
                 can_press = false;
             }
@@ -95,11 +101,20 @@ void boss_fight_update(Scene *self)
             bf->menu_state = MENU_ATTACK_JUDGE;
 
             if(bf->bar_position > 0.44f && bf->bar_position < 0.52f){
-                damage += 20;
+                if(is_att)
+                damage += 1 * resources.food;
+                else 
+                    resources.food -= 1;
             }else if(bf->bar_position > 0.22f && bf->bar_position < 0.72f){
-                damage += 10;
+                if(is_att)
+                damage += 2 * resources.food;
+                else 
+                    resources.food -= 2;
             }else{
+                if(is_att)
                 damage = 0;
+                else 
+                    resources.food -= 3;
             }
             boss->hp -= damage;
             if(boss->hp <= 0) {
@@ -127,15 +142,20 @@ void boss_fight_update(Scene *self)
         bf->wait_timer--;
         if(bf->wait_timer <= 0){
             boss->damage = 10 + rand() % 10;
-
-            if(player->hp < 0) player->hp = 0;
-
             bf->turn_state = TURN_BOSS_WAIT;
             bf->wait_timer = 30;
             bf->hurt_timer = 10;
         }
-        player->hp -= boss->damage;
+        if(!is_att)
+            player->hp -= 0;
+        else 
+            player->hp -= boss->damage;
         boss->damage = 0;
+        if(player->hp < 0){
+            player->hp = 0;
+            scene->scene_end = true;
+            window = 5;
+        }
     }
 
     if(bf->turn_state == TURN_BOSS_WAIT){
