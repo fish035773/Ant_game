@@ -2,8 +2,11 @@
 #include "floor.h"
 #include "../shapes/Rectangle.h"
 bool check_collision(Shape *a, Shape *b){
-    Rectangle *rect_a = (Rectangle*)a;
-    Rectangle *rect_b = (Rectangle*)b;
+    //Rectangle *rect_a = (Rectangle*)a;
+    //Rectangle *rect_b = (Rectangle*)b;
+    Rectangle *rect_a = (Rectangle*)(a->pDerivedObj);
+    Rectangle *rect_b = (Rectangle*)(b->pDerivedObj);
+
     double a_left = fmin(rect_a->x1, rect_a->x2);
     double a_right = fmax(rect_a->x1, rect_a->x2);
     double a_top = fmin(rect_a->y1, rect_a->y2);

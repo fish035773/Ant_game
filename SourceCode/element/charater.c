@@ -77,7 +77,7 @@ void Character_update(Elements *self)
     }
     else if(chara->on_ground == true){
         if(key_state[ALLEGRO_KEY_SPACE]){
-            chara->gravity = -7;
+            chara->gravity = -10;
             _Character_update_position(self, 0, chara->gravity);
             chara->on_ground = false;
         }
@@ -122,6 +122,8 @@ void Character_draw(Elements *self)
 {
     // with the state, draw corresponding image
     Character *chara = ((Character *)(self->pDerivedObj));
+    Rectangle *f = (Rectangle *)chara->hitbox->pDerivedObj;
+    al_draw_rectangle(f->x1, f->y1, f->x2, f->y2, al_map_rgb(255, 0, 0), 2);
     ALLEGRO_BITMAP *frame = algif_get_bitmap(chara->gif_status[chara->state], al_get_time());
     if (frame)
     {
@@ -157,9 +159,18 @@ void _Character_update_position(Elements *self, int dx, int dy)
     Character *chara = ((Character *)(self->pDerivedObj));
     chara->x += dx;
     chara->y += dy;
-    Shape *hitbox = chara->hitbox;
-    hitbox->update_center_x(hitbox, dx);
-    hitbox->update_center_y(hitbox, dy);
+    //Shape *hitbox = chara->hitbox;
+    //hitbox->update_center_x(hitbox, dx);
+    //hitbox->update_center_y(hitbox, dy);
+    // 取得 hitbox 的具體形狀 (Rectangle)
+    Rectangle *hitbox_rect = (Rectangle *)chara->hitbox->pDerivedObj;
+
+    // 直接設定 hitbox 的座標
+    hitbox_rect->x1 = chara->x;
+    hitbox_rect->y1 = chara->y;
+    hitbox_rect->x2 = chara->x + chara->width;
+    hitbox_rect->y2 = chara->y + chara->height;
+    
 }
 
 //the collision with floor

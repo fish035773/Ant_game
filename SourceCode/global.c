@@ -16,7 +16,12 @@ ALLEGRO_FONT *clock_font = NULL;
 bool key_state[ALLEGRO_KEY_MAX] = {false};
 bool mouse_state[ALLEGRO_MOUSE_MAX_EXTRA_AXES] = {false};
 Point mouse;
+
+bool f_key_released = true;
+bool m_key_released = true;
+
 bool debug_mode = true;
+
 GameClock game_clock;
 Resources resources;
 FoodState food_states[100]; 

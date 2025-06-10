@@ -8,9 +8,8 @@
 #include "../scene/sceneManager.h"   //  <-- 新增
 #include "collision.h"             //  <-- 新增 (為了 check_collision)
 extern Resources resources;
-bool f_key_released = true;
+//bool f_key_released = true;
 bool space_key_released = true;
-bool slided = true;
 extern int alert_level;
 Elements *New_Food(int label, int x, int y, int scene_label, int id) {
 
@@ -50,7 +49,13 @@ Elements *New_Food(int label, int x, int y, int scene_label, int id) {
     pDerivedObj->alert_bar_position = 0.0f;
     pDerivedObj->alert_bar_speed = 0.02f;
 
-    pDerivedObj->is_collected = true;
+    if (food_states[pDerivedObj->id].is_collected && food_states[pDerivedObj->id].day_collected == game_clock.day) {
+        pDerivedObj->is_collected = true;
+        pDerivedObj->day_collected = game_clock.day;
+    } else {
+        pDerivedObj->is_collected = false;
+        pDerivedObj->day_collected = -1;
+    }
 
     pObj->pDerivedObj = pDerivedObj;
     
@@ -95,7 +100,9 @@ void Food_update(Elements *self) {
         //printf("%d\n", food->id);
     }
 
-    if (colliding) {
+    int now_collecting=0;
+    if (colliding||now_collecting==1) {
+        
         if (!food->alert_bar_active && key_state[ALLEGRO_KEY_F] && f_key_released) {
             food->alert_bar_active = true;
             food->alert_bar_position = 0.0f;
@@ -105,6 +112,7 @@ void Food_update(Elements *self) {
         }
 
         if (food->alert_bar_active) {
+            now_collecting=1;
             if (food->alert_bar_direction)
                 food->alert_bar_position += food->alert_bar_speed;
             else
@@ -124,11 +132,19 @@ void Food_update(Elements *self) {
                 //printf("%d\n", alert_level);
                 if (food->alert_bar_position > 0.44f && food->alert_bar_position < 0.52f) {
                     resources.food += 5 * resources.ants;
+                    // Update global state
+                    food_states[food->id].is_collected = true;
+                    food_states[food->id].day_collected = game_clock.day;
+                    now_collecting=0;
                 }else if(food->alert_bar_position > 0.22f && food->alert_bar_position < 0.72f){
                     resources.food += 2 * resources.ants;
+                    food_states[food->id].is_collected = true;
+                    food_states[food->id].day_collected = game_clock.day;
+                    now_collecting=0;
                 }else {
-                    printf("%d\n", food->id);
+                    //printf("%d\n", food->id);
                     alert_level -= 1;
+                    food->is_collected = true;
                     if (alert_level <= 0) {
                         //printf("YASSS\n");
                         if(game_clock.hour < 17) game_clock.day += 1;

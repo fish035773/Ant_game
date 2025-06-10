@@ -9,6 +9,7 @@
 #include "../element/projectile.h"
 #include "../element/food.h"
 extern int alert_level;
+#define FOOD_AMT 4
 Scene *New_Kitchen(int label)
 {
     Kitchen *pDerivedObj = (Kitchen *)malloc(sizeof(Kitchen));
@@ -99,11 +100,6 @@ void kitchen_update(Scene *self)
         self->scene_end = true;
         window = 2;
         return;
-    }else if (chara != NULL && chara->x + chara->width >= WIDTH)
-    {
-        self->scene_end = true;
-        window = 4;
-        return;
     }
 }
 void kitchen_draw(Scene *self)
@@ -117,6 +113,8 @@ void kitchen_draw(Scene *self)
         Elements *ele = allEle.arr[i];
         ele->Draw(ele);
     }
+
+
     if(alert_level == 3){
         al_draw_bitmap(gs->alert_bar_full, WIDTH - 50, 30, 0);
     }else if(alert_level == 2){

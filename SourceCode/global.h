@@ -38,6 +38,10 @@ extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_EVENT event;
 extern ALLEGRO_TIMER *fps;
 extern bool debug_mode;
+
+extern bool f_key_released;
+extern bool m_key_released;
+
 extern int spawn_timer;
 ALLEGRO_FONT* count_font;
 

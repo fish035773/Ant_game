@@ -17,11 +17,13 @@ extern Scene *scene;
 extern GameClock game_clock;
 extern Resources resources;
 extern bool f_key_released;
+int chara_x;
 /*
    [Bed function]
 */
 Elements *New_Bed(int label)
 {
+    chara_x = 0;
     al_init();
     Bed *pDerivedObj = (Bed *)malloc(sizeof(Bed));
     Elements *pObj = New_Elements(label);
@@ -53,12 +55,12 @@ void Bed_update(Elements *self) {
     if (char_vec.len > 0) {
         Elements *char_ele = char_vec.arr[0];
         Character *character = (Character *)(char_ele->pDerivedObj);
-
+        chara_x = character->x;
         colliding = check_collision(bed->hitbox, character->hitbox);
     }
 
     if (colliding) {
-        if (key_state[ALLEGRO_KEY_F] && f_key_released) {
+        if (key_state[ALLEGRO_KEY_F] && f_key_released && chara_x < 260) {
             game_clock.day += 1;
             game_clock.hour = 8;
             game_clock.min = 0;

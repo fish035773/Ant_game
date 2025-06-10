@@ -67,6 +67,8 @@ void execute(Game *self)
         case ALLEGRO_EVENT_KEY_UP:
         {
             key_state[event.keyboard.keycode] = false;
+            if (event.keyboard.keycode == ALLEGRO_KEY_F) f_key_released = true;
+            if (event.keyboard.keycode == ALLEGRO_KEY_M) m_key_released = true;
             break;
         }
         case ALLEGRO_EVENT_MOUSE_AXES:
@@ -152,9 +154,7 @@ bool game_update(Game *self)
         return false;
     }
     
-    if(window != 4){
-        
-    }
+
     double now = al_get_time();
     double delta = now - last_time;
     last_time = now;
