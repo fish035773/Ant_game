@@ -127,6 +127,8 @@ void kitchen_draw(Scene *self)
     }else if(alert_level == 0){
         al_draw_bitmap(gs->alert_bar_empty, WIDTH - 50, 30, 0);
     }
+
+    
 }
 void kitchen_destroy(Scene *self)
 {

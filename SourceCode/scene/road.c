@@ -11,7 +11,6 @@
 /*
    The middle scene
 */
-bool time_up = false;
 Scene *New_Road(int label)
 {
     GameScene *pDerivedObj = (GameScene *)malloc(sizeof(GameScene));
@@ -20,8 +19,8 @@ Scene *New_Road(int label)
     // setting derived object member
     pDerivedObj->background = al_load_bitmap("assets/image/road_background.jpg");
     pDerivedObj->times_up= al_load_bitmap("assets/image/times_up.png");
+    pDerivedObj->timeup = false;
     pObj->pDerivedObj = pDerivedObj;
-    time_up = false;
     if(!pDerivedObj->background){
         fprintf(stderr, "[ERROR] Failed to load background\n");
         exit(1);
@@ -55,6 +54,7 @@ Scene *New_Road(int label)
 }
 void  road_update(Scene *self)
 {
+
     Character *chara = NULL;
     // update every element
     ElementVec allEle = _Get_all_elements(self);
@@ -90,9 +90,10 @@ void  road_update(Scene *self)
     if(chara->y >= HEIGHT){
         chara->y = 10;
     }
-
-    if(game_clock.hour >= 17){
-        time_up = true;
+    GameScene *gs = ((GameScene *)(self->pDerivedObj));
+    if (!gs->timeup && game_clock.hour >= 17) {
+        gs->time_up_img_start_time = al_get_time();
+        gs->timeup = true;
     }
     //switch to the first scene and the third dcene
     if (chara != NULL && chara->x <= 0)
@@ -115,23 +116,30 @@ void road_draw(Scene *self)
     al_draw_bitmap(gs->background, 0, 0, 0);
 
 
-    if(time_up){
-        al_draw_bitmap(gs->times_up,  (WIDTH - 226) / 2, (HEIGHT - 156) / 2, 0);
-        al_rest(1.5);
-        game_clock.day += 1;
-        game_clock.hour = 8;
-        game_clock.min = 0;
-        self->scene_end = true;
-        window = 1;
-        return;
-    }
-
     ElementVec allEle = _Get_all_elements(self);
     for (int i = 0; i < allEle.len; i++)
     {
         Elements *ele = allEle.arr[i];
         ele->Draw(ele);
     }
+
+    
+    if(gs->timeup){
+        double now = al_get_time();
+        if(now - gs->time_up_img_start_time < 1.5){
+            al_draw_bitmap(gs->times_up,  (WIDTH - 226) / 2, (HEIGHT - 156) / 2, 0);
+        } else {
+            gs->timeup = false;
+            
+            game_clock.day += 1;
+            game_clock.hour = 8;
+            game_clock.min = 0;
+            self->scene_end = true;
+            window = 1;
+            return;
+        }
+    }
+
 }
 void road_destroy(Scene *self)
 {

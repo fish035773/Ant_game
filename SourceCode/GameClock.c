@@ -14,7 +14,7 @@ void Init_Game_Clock(GameClock *clock){
 }
 
 void Update_Game_Clock(GameClock *clock, double delta){
-        if(clock->day >= 4) return;
+    if(clock->day >= 4) return;
     double game_minute = delta * (540 / 300*10);
 
     clock->timer_accum += game_minute;
@@ -27,8 +27,6 @@ void Update_Game_Clock(GameClock *clock, double delta){
             clock->min = 0;
 
             if(clock->hour > 17){
-
-                
                 resources.food_add = 0;
                 window = 1;
                 clock->hour = 8;

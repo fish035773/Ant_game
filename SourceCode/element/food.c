@@ -16,7 +16,7 @@ Elements *New_Food(int label, int x, int y, int scene_label, int id) {
     Food *pDerivedObj = (Food *)malloc(sizeof(Food));
     Elements *pObj = New_Elements(label);
 
-    pDerivedObj->img = al_load_bitmap("assets/image/icon.jpg");
+    pDerivedObj->img = al_load_bitmap("assets/image/icon.png");
     pDerivedObj->slide_bar = al_load_bitmap("assets/image/slide_bar.png");
     pDerivedObj->slide_bar_pointer = al_load_bitmap("assets/image/slide_bar_pointer.png");
 
