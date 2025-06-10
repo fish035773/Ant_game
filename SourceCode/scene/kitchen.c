@@ -16,6 +16,7 @@ Scene *New_Kitchen(int label)
     Scene *pObj = New_Scene(label);
     // setting derived object member
     pDerivedObj->background = al_load_bitmap("assets/image/kitchen_background.jpg");
+    pDerivedObj->times_up= al_load_bitmap("assets/image/times_up.png");
     if(!pDerivedObj->background){
         fprintf(stderr, "[ERROR] Failed to load background\n");
         exit(1);
@@ -28,9 +29,9 @@ Scene *New_Kitchen(int label)
     pObj->pDerivedObj = pDerivedObj;
     Elements *floor = New_Floor(Floor_L, "assets/map/kitchen_map.txt");
     Elements *ele = New_Character(Character_L);
-    _Register_elements(scene, New_Food(Food_L, 300, 230, scene->label, 1));
+    _Register_elements(scene, New_Food(Food_L, 300, 240, scene->label, 1));
     _Register_elements(scene, New_Food(Food_L, 340, 170, scene->label, 2)); 
-    _Register_elements(scene, New_Food(Food_L, 200, 200, scene->label, 3));
+    _Register_elements(scene, New_Food(Food_L, 200, 210, scene->label, 3));
     _Register_elements(scene, New_Food(Food_L, 400, 100, scene->label, 4));
     // register element
     _Register_elements(pObj, floor);
@@ -83,8 +84,10 @@ void kitchen_update(Scene *self)
     if(chara->y >= HEIGHT){
         chara->y = 10;
     }
-    //switch to the second map
+    //switch to the second map'
+    Kitchen *gs = ((Kitchen *)(self->pDerivedObj));
     if(game_clock.hour >= 17){
+        al_draw_bitmap(gs->times_up,  (WIDTH - 226) / 2, (HEIGHT - 156) / 2, 0);
         al_rest(1);
         game_clock.day += 1;
         game_clock.hour = 8;

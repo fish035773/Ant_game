@@ -164,7 +164,9 @@ bool game_update(Game *self)
         last_day = game_clock.day;
         Update_Resources(&resources);
     }
+
     //只有螞蟻收集部分才會更新時間
+
     if (scene->label == Nest_L || scene->label == Road_L || scene->label == Kitchen_L) {
         
         Update_Game_Clock(&game_clock, delta);

@@ -14,7 +14,7 @@ typedef struct _Kitchen
     ALLEGRO_BITMAP *alert_bar_yellow;
     ALLEGRO_BITMAP *alert_bar_red;
     ALLEGRO_BITMAP *alert_bar_empty;
-
+    ALLEGRO_BITMAP *times_up;
 } Kitchen;
 Scene *New_Kitchen(int label);
 void kitchen_update(Scene *self);
